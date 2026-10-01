@@ -73,6 +73,10 @@ def load():
 
     cur.execute(Path(__file__).parent.joinpath("schema.sql").read_text(encoding="utf-8"))
 
+    # Без этого повторный запуск (например, на уже существующем pg_data volume)
+    # молча задваивает данные вместо того, чтобы дать предсказуемый результат.
+    cur.execute("TRUNCATE requests, incidents RESTART IDENTITY CASCADE")
+
     cur.executemany(
         """
         INSERT INTO requests (request_id, logged_at, status, duration_ms, error_type, incident_mode)
